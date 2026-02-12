@@ -19,6 +19,7 @@ body{
 }
 
 .container{
+    position:relative;
     background:white;
     padding:40px;
     width:92%;
@@ -26,7 +27,6 @@ body{
     border-radius:28px;
     box-shadow:0 25px 55px rgba(0,0,0,.25);
     text-align:center;
-    position:relative;
 }
 
 /* TEXT */
@@ -43,17 +43,14 @@ h1{
     line-height:1.6;
 }
 
-/* PLAY AREA FOR NO BUTTON */
-.play-area{
+/* BUTTON ROW (SIDE BY SIDE INITIALLY) */
+.button-row{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin-top:25px;
     position:relative;
-    height:160px;
-    margin-top:20px;
-    border-radius:16px;
-}
-
-/* YES AREA (PROTECTED) */
-.yes-area{
-    margin-top:20px;
+    z-index:2;
 }
 
 /* BUTTON BASE */
@@ -81,9 +78,6 @@ button{
 #noBtn{
     background:#adb5bd;
     color:white;
-    position:absolute;
-    top:0;
-    right:0;
     cursor:pointer;
 }
 
@@ -113,14 +107,10 @@ button{
     <h1 id="question"></h1>
     <div class="message" id="message"></div>
 
-    <!-- NO BUTTON CAN MOVE ONLY HERE -->
-    <div class="play-area" id="playArea">
-        <button id="noBtn">NO 😢</button>
-    </div>
-
-    <!-- YES BUTTON IS SAFE HERE -->
-    <div class="yes-area">
+    <!-- SIDE BY SIDE AT FIRST -->
+    <div class="button-row" id="buttonRow">
         <button id="yesBtn">YES 💖</button>
+        <button id="noBtn">NO 😢</button>
     </div>
 
     <div style="margin-top:15px;font-size:14px;color:#555">
@@ -146,7 +136,7 @@ document.addEventListener("click", startMusic);
 document.addEventListener("touchstart", startMusic);
 
 /* TYPE QUESTION */
-const questionText = "My Cupcake🧁🧁 I want to ask you something 💕";
+const questionText = "Hey… I want to ask you something 💕";
 const question = document.getElementById("question");
 let qi = 0;
 
@@ -183,9 +173,10 @@ function showMessage(){
     }
 }
 
-/* NO BUTTON MOVEMENT (ONLY IN PLAY AREA) */
+/* NO BUTTON ESCAPE (INSIDE WHITE CARD, NEVER OVER YES) */
 const noBtn = document.getElementById("noBtn");
-const playArea = document.getElementById("playArea");
+const container = document.querySelector(".container");
+const yesBtn = document.getElementById("yesBtn");
 
 const noTexts = [
     "NO 😢",
@@ -199,16 +190,30 @@ const noTexts = [
 ];
 
 let ni = 0;
+let escaped = false;
 
 function moveNo(){
-    const area = playArea.getBoundingClientRect();
-    const btn = noBtn.getBoundingClientRect();
+    if(!escaped){
+        escaped = true;
+        noBtn.style.position = "absolute";
+        container.appendChild(noBtn);
+    }
 
-    const maxX = area.width - btn.width;
-    const maxY = area.height - btn.height;
+    const cRect = container.getBoundingClientRect();
+    const yRect = yesBtn.getBoundingClientRect();
+    const bRect = noBtn.getBoundingClientRect();
 
-    noBtn.style.left = Math.random() * maxX + "px";
-    noBtn.style.top = Math.random() * maxY + "px";
+    let x, y;
+    do {
+        x = Math.random() * (cRect.width - bRect.width - 20);
+        y = Math.random() * (cRect.height - bRect.height - 20);
+    } while (
+        y > yRect.top - cRect.top - bRect.height &&
+        y < yRect.bottom - cRect.top
+    );
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
     noBtn.textContent = noTexts[ni++ % noTexts.length];
 }
 
@@ -217,7 +222,6 @@ noBtn.addEventListener("click", moveNo);
 noBtn.addEventListener("touchstart", moveNo);
 
 /* YES CLICK */
-const yesBtn = document.getElementById("yesBtn");
 const main = document.getElementById("main");
 const hearts = document.getElementById("hearts");
 
