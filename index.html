@@ -18,21 +18,15 @@ body{
 }
 
 .container{
+    position: relative; /* VERY IMPORTANT */
     text-align:center;
     background:white;
-
-    /* Bigger inner space */
     padding:clamp(28px, 6vw, 50px);
-
-    /* Bigger card */
     width:92%;
     max-width:520px;
-
     border-radius:28px;
     box-shadow:0 25px 55px rgba(0,0,0,.25);
 }
-
-
 h1{
     color:#ff4d6d;
     min-height:70px;
@@ -82,7 +76,7 @@ button{
 #noBtn{
     background:#adb5bd;
     color:white;
-    cursor:pointer;
+    position:absolute; /* so it can move freely */
 }
 
 /* YES WIGGLE */
@@ -193,16 +187,42 @@ const noTexts = ["NO 😢", "WAIT—", "ARE YOU SURE?", "OK OK 😭"];
 let ni = 0;
 
 function moveNo(){
-    noBtn.style.position = "absolute";
-    noBtn.style.left = "50%";
-    noBtn.style.top = "50%";
-    noBtn.style.transform =
-        `translate(${Math.random()*300-150}px,${Math.random()*120-60}px)`;
-    noBtn.textContent = noTexts[ni++ % noTexts.length];
+const noTexts = [
+    "NO 😢",
+    "WAIT 😭",
+    "NO NO 😵",
+    "OK OK 😳",
+    "PLEASE 😩",
+    "DON'T 😬",
+    "I'M SCARED 😱",
+    "WHY ME 😭"
+];
+
+let ni = 0;
+
+function moveNo(){
+    const container = document.querySelector(".container");
+
+    const containerRect = container.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+
+    const maxX = containerRect.width - btnRect.width - 20;
+    const maxY = containerRect.height - btnRect.height - 20;
+
+    const randomX = Math.random() * maxX;
+    const randomY = Math.random() * maxY;
+
+    noBtn.style.left = randomX + "px";
+    noBtn.style.top = randomY + "px";
+
+    noBtn.textContent = noTexts[ni % noTexts.length];
+    ni++;
 }
+
 
 noBtn.addEventListener("mouseover", moveNo);
 noBtn.addEventListener("click", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
 
 /* YES CLICK */
 const main = document.getElementById("main");
@@ -268,5 +288,6 @@ document.addEventListener("touchstart", startMusic);
 
 </body>
 </html>
+
 
 
