@@ -7,10 +7,11 @@
 <style>
 body{
     margin:0;
-    height:100vh;
+    min-height:100vh;
     display:flex;
     justify-content:center;
     align-items:center;
+    padding:20px; /* gives space around card */
     background:linear-gradient(135deg,#ff9a9e,#fad0c4);
     font-family:'Segoe UI',sans-serif;
     overflow:hidden;
@@ -19,11 +20,16 @@ body{
 .container{
     text-align:center;
     background:white;
-    padding:clamp(20px, 5vw, 40px);
-    border-radius:25px;
-    box-shadow:0 20px 40px rgba(0,0,0,.25);
-    width:90%;
-    max-width:420px;
+
+    /* Bigger inner space */
+    padding:clamp(28px, 6vw, 50px);
+
+    /* Bigger card */
+    width:92%;
+    max-width:520px;
+
+    border-radius:28px;
+    box-shadow:0 25px 55px rgba(0,0,0,.25);
 }
 
 
@@ -242,7 +248,25 @@ musicBtn.onclick=()=>{
     }
 };
 </script>
+<audio id="bgm" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const bgm = document.getElementById("bgm");
+
+function startMusic() {
+    bgm.play().catch(() => {});
+    document.removeEventListener("click", startMusic);
+    document.removeEventListener("touchstart", startMusic);
+}
+
+// Start music on first interaction (tap or click)
+document.addEventListener("click", startMusic);
+document.addEventListener("touchstart", startMusic);
+</script>
 
 </body>
 </html>
+
 
