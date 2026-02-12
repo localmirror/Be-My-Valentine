@@ -19,7 +19,6 @@ body{
 }
 
 .container{
-    position:relative; /* movement boundary */
     background:white;
     padding:40px;
     width:92%;
@@ -27,8 +26,10 @@ body{
     border-radius:28px;
     box-shadow:0 25px 55px rgba(0,0,0,.25);
     text-align:center;
+    position:relative;
 }
 
+/* TEXT */
 h1{
     color:#ff4d6d;
     font-size:clamp(22px,5vw,32px);
@@ -42,14 +43,20 @@ h1{
     line-height:1.6;
 }
 
-/* BUTTON AREA */
-.buttons{
+/* PLAY AREA FOR NO BUTTON */
+.play-area{
     position:relative;
-    height:160px; /* space for movement */
-    margin-top:25px;
+    height:160px;
+    margin-top:20px;
+    border-radius:16px;
 }
 
-/* COMMON BUTTON */
+/* YES AREA (PROTECTED) */
+.yes-area{
+    margin-top:20px;
+}
+
+/* BUTTON BASE */
 button{
     padding:14px 30px;
     font-size:17px;
@@ -75,16 +82,8 @@ button{
     background:#adb5bd;
     color:white;
     position:absolute;
-    right:0;
     top:0;
-    cursor:pointer;
-}
-
-/* MUSIC */
-.music{
-    margin-top:20px;
-    font-size:14px;
-    color:#555;
+    right:0;
     cursor:pointer;
 }
 
@@ -114,12 +113,19 @@ button{
     <h1 id="question"></h1>
     <div class="message" id="message"></div>
 
-    <div class="buttons" id="playArea">
-        <button id="yesBtn">YES 💖</button>
+    <!-- NO BUTTON CAN MOVE ONLY HERE -->
+    <div class="play-area" id="playArea">
         <button id="noBtn">NO 😢</button>
     </div>
 
-    <div class="music" id="musicHint">🎵 Tap anywhere to start music</div>
+    <!-- YES BUTTON IS SAFE HERE -->
+    <div class="yes-area">
+        <button id="yesBtn">YES 💖</button>
+    </div>
+
+    <div style="margin-top:15px;font-size:14px;color:#555">
+        🎵 Tap anywhere to start music
+    </div>
 </div>
 
 <div class="hearts" id="hearts"></div>
@@ -129,7 +135,7 @@ button{
 </audio>
 
 <script>
-/* MUSIC ON FIRST TAP ANYWHERE */
+/* MUSIC ON FIRST TAP */
 const bgm = document.getElementById("bgm");
 function startMusic(){
     bgm.play().catch(()=>{});
@@ -140,7 +146,7 @@ document.addEventListener("click", startMusic);
 document.addEventListener("touchstart", startMusic);
 
 /* TYPE QUESTION */
-const questionText = "Hey My Cupcake🧁🧁 I want to ask you something 💕";
+const questionText = "My Cupcake🧁🧁 I want to ask you something 💕";
 const question = document.getElementById("question");
 let qi = 0;
 
@@ -177,7 +183,7 @@ function showMessage(){
     }
 }
 
-/* NO BUTTON MOVEMENT (INSIDE WHITE CARD) */
+/* NO BUTTON MOVEMENT (ONLY IN PLAY AREA) */
 const noBtn = document.getElementById("noBtn");
 const playArea = document.getElementById("playArea");
 
@@ -188,16 +194,18 @@ const noTexts = [
     "OK OK 😳",
     "PLEASE 😩",
     "WHY 😭",
-    "STOP 😬"
+    "STOP 😬",
+    "HELP 😱"
 ];
+
 let ni = 0;
 
 function moveNo(){
-    const areaRect = playArea.getBoundingClientRect();
-    const btnRect = noBtn.getBoundingClientRect();
+    const area = playArea.getBoundingClientRect();
+    const btn = noBtn.getBoundingClientRect();
 
-    const maxX = areaRect.width - btnRect.width;
-    const maxY = areaRect.height - btnRect.height;
+    const maxX = area.width - btn.width;
+    const maxY = area.height - btn.height;
 
     noBtn.style.left = Math.random() * maxX + "px";
     noBtn.style.top = Math.random() * maxY + "px";
