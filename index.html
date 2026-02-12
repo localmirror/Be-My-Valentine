@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Be My Valentine 💖</title>
 
 <style>
@@ -11,51 +12,49 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:20px; /* gives space around card */
+    padding:20px;
     background:linear-gradient(135deg,#ff9a9e,#fad0c4);
     font-family:'Segoe UI',sans-serif;
     overflow:hidden;
 }
 
 .container{
-    position: relative; /* VERY IMPORTANT */
-    text-align:center;
+    position:relative; /* movement boundary */
     background:white;
-    padding:clamp(28px, 6vw, 50px);
+    padding:40px;
     width:92%;
     max-width:520px;
     border-radius:28px;
     box-shadow:0 25px 55px rgba(0,0,0,.25);
+    text-align:center;
 }
+
 h1{
     color:#ff4d6d;
-    min-height:70px;
+    font-size:clamp(22px,5vw,32px);
+    min-height:60px;
 }
 
 .message{
     font-size:16px;
     color:#444;
-    margin-top:10px;
-    min-height:110px;
+    min-height:120px;
     line-height:1.6;
 }
 
 /* BUTTON AREA */
 .buttons{
     position:relative;
-    height:140px;
+    height:160px; /* space for movement */
     margin-top:25px;
-    display:flex;
-    justify-content:center;
-    gap:40px;
 }
 
+/* COMMON BUTTON */
 button{
-    padding:15px 32px;
-    font-size:18px;
+    padding:14px 30px;
+    font-size:17px;
     border:none;
     border-radius:30px;
-    transition:.3s;
 }
 
 /* YES BUTTON */
@@ -64,7 +63,6 @@ button{
     color:white;
     opacity:0.4;
     cursor:not-allowed;
-    animation: wiggle 2s infinite;
 }
 
 #yesBtn.active{
@@ -76,24 +74,18 @@ button{
 #noBtn{
     background:#adb5bd;
     color:white;
-    position:absolute; /* so it can move freely */
-}
-
-/* YES WIGGLE */
-@keyframes wiggle {
-    0%{transform:rotate(0deg);}
-    25%{transform:rotate(1deg);}
-    50%{transform:rotate(0deg);}
-    75%{transform:rotate(-1deg);}
-    100%{transform:rotate(0deg);}
+    position:absolute;
+    right:0;
+    top:0;
+    cursor:pointer;
 }
 
 /* MUSIC */
 .music{
     margin-top:20px;
     font-size:14px;
-    cursor:pointer;
     color:#555;
+    cursor:pointer;
 }
 
 /* HEARTS */
@@ -105,7 +97,7 @@ button{
 
 .heart{
     position:absolute;
-    font-size:24px;
+    font-size:22px;
     animation:fall 4s linear infinite;
 }
 
@@ -122,23 +114,33 @@ button{
     <h1 id="question"></h1>
     <div class="message" id="message"></div>
 
-    <div class="buttons">
+    <div class="buttons" id="playArea">
         <button id="yesBtn">YES 💖</button>
         <button id="noBtn">NO 😢</button>
     </div>
 
-    <div class="music" id="musicBtn">🎵 Turn music ON</div>
+    <div class="music" id="musicHint">🎵 Tap anywhere to start music</div>
 </div>
 
 <div class="hearts" id="hearts"></div>
 
-<audio id="bgm" loop>
-    <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_6cbbf4e4a5.mp3">
+<audio id="bgm" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
+/* MUSIC ON FIRST TAP ANYWHERE */
+const bgm = document.getElementById("bgm");
+function startMusic(){
+    bgm.play().catch(()=>{});
+    document.removeEventListener("click", startMusic);
+    document.removeEventListener("touchstart", startMusic);
+}
+document.addEventListener("click", startMusic);
+document.addEventListener("touchstart", startMusic);
+
 /* TYPE QUESTION */
-const questionText = "Hey Sana..... I want to ask you something 💕";
+const questionText = "Hey My Cupcake🧁🧁 I want to ask you something 💕";
 const question = document.getElementById("question");
 let qi = 0;
 
@@ -171,60 +173,43 @@ function showMessage(){
         mi++;
         setTimeout(showMessage,1100);
     } else {
-        activateYes();
+        yesBtn.classList.add("active");
     }
 }
 
-/* ACTIVATE YES */
-const yesBtn = document.getElementById("yesBtn");
-function activateYes(){
-    yesBtn.classList.add("active");
-}
-
-/* NO BUTTON ESCAPE */
+/* NO BUTTON MOVEMENT (INSIDE WHITE CARD) */
 const noBtn = document.getElementById("noBtn");
-const noTexts = ["NO 😢", "WAIT—", "ARE YOU SURE?", "OK OK 😭"];
-let ni = 0;
+const playArea = document.getElementById("playArea");
 
-function moveNo(){
 const noTexts = [
     "NO 😢",
     "WAIT 😭",
     "NO NO 😵",
     "OK OK 😳",
     "PLEASE 😩",
-    "DON'T 😬",
-    "I'M SCARED 😱",
-    "WHY ME 😭"
+    "WHY 😭",
+    "STOP 😬"
 ];
-
 let ni = 0;
 
 function moveNo(){
-    const container = document.querySelector(".container");
-
-    const containerRect = container.getBoundingClientRect();
+    const areaRect = playArea.getBoundingClientRect();
     const btnRect = noBtn.getBoundingClientRect();
 
-    const maxX = containerRect.width - btnRect.width - 20;
-    const maxY = containerRect.height - btnRect.height - 20;
+    const maxX = areaRect.width - btnRect.width;
+    const maxY = areaRect.height - btnRect.height;
 
-    const randomX = Math.random() * maxX;
-    const randomY = Math.random() * maxY;
-
-    noBtn.style.left = randomX + "px";
-    noBtn.style.top = randomY + "px";
-
-    noBtn.textContent = noTexts[ni % noTexts.length];
-    ni++;
+    noBtn.style.left = Math.random() * maxX + "px";
+    noBtn.style.top = Math.random() * maxY + "px";
+    noBtn.textContent = noTexts[ni++ % noTexts.length];
 }
-
 
 noBtn.addEventListener("mouseover", moveNo);
 noBtn.addEventListener("click", moveNo);
 noBtn.addEventListener("touchstart", moveNo);
 
 /* YES CLICK */
+const yesBtn = document.getElementById("yesBtn");
 const main = document.getElementById("main");
 const hearts = document.getElementById("hearts");
 
@@ -233,7 +218,7 @@ yesBtn.addEventListener("click", ()=>{
 
     main.innerHTML = `
         <h1>You just made me really happy 😭💖</h1>
-        <div style="font-size:40px;">💞💞💞</div>
+        <div style="font-size:36px;">💞💞💞</div>
         <p>Thank you for choosing me.</p>
         <p style="color:#555">
             I promise to make you smile — not just today, but every day 🧸
@@ -242,7 +227,7 @@ yesBtn.addEventListener("click", ()=>{
     startHearts();
 });
 
-/* HEART ANIMATION */
+/* HEARTS */
 function startHearts(){
     setInterval(()=>{
         const h=document.createElement("div");
@@ -253,41 +238,7 @@ function startHearts(){
         setTimeout(()=>h.remove(),4000);
     },200);
 }
-
-/* MUSIC */
-const bgm = document.getElementById("bgm");
-const musicBtn = document.getElementById("musicBtn");
-
-musicBtn.onclick=()=>{
-    if(bgm.paused){
-        bgm.play();
-        musicBtn.textContent="🔇 Turn music OFF";
-    } else {
-        bgm.pause();
-        musicBtn.textContent="🎵 Turn music ON";
-    }
-};
-</script>
-<audio id="bgm" loop preload="auto">
-    <source src="music.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-const bgm = document.getElementById("bgm");
-
-function startMusic() {
-    bgm.play().catch(() => {});
-    document.removeEventListener("click", startMusic);
-    document.removeEventListener("touchstart", startMusic);
-}
-
-// Start music on first interaction (tap or click)
-document.addEventListener("click", startMusic);
-document.addEventListener("touchstart", startMusic);
 </script>
 
 </body>
 </html>
-
-
-
